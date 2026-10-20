@@ -1,0 +1,457 @@
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+
+  width: 100%;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  padding: 28px 40px;
+
+  z-index: 100;
+}
+
+.navbar-logo {
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.05em;
+}
+
+.navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 40px;
+}
+
+.navbar-location {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: #888;
+}
+
+.menu-button {
+  background: transparent;
+  color: #fff;
+
+  border: 1px solid #444;
+
+  padding: 12px 20px;
+
+  cursor: pointer;
+
+  font-size: 11px;
+  letter-spacing: 0.1em;
+
+  transition: 0.3s ease;
+}
+
+.menu-button:hover {
+  background: #fff;
+  color: #000;
+}
+
+.hero {
+  min-height: 100vh;
+
+  padding: 160px 40px 40px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.hero-label {
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  color: #888;
+}
+
+.hero h1 {
+  font-size: clamp(4rem, 11vw, 11rem);
+
+  line-height: 0.82;
+
+  letter-spacing: -0.07em;
+
+  font-weight: 700;
+
+  max-width: 1200px;
+}
+
+.hero-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+
+  font-size: 12px;
+
+  color: #999;
+}
+
+.hero-bottom p {
+  max-width: 250px;
+  line-height: 1.5;
+}
+
+.hero-bottom span {
+  letter-spacing: 0.1em;
+}
+
+.marquee {
+  width: 100%;
+  overflow: hidden;
+
+  border-top: 1px solid #242424;
+  border-bottom: 1px solid #242424;
+
+  padding: 25px 0;
+
+  white-space: nowrap;
+}
+
+.marquee-track {
+  display: flex;
+  align-items: center;
+  gap: 40px;
+
+  width: max-content;
+
+  animation: marquee 25s linear infinite;
+}
+
+.marquee-track span {
+  font-size: 14px;
+  letter-spacing: 0.12em;
+}
+
+.marquee-track span:nth-child(even) {
+  color: #ff2b2b;
+}
+
+@keyframes marquee {
+
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
+
+}
+
+.destinations {
+  padding: 180px 40px;
+}
+
+.section-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+
+  margin-bottom: 120px;
+}
+
+.section-heading p {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: #777;
+}
+
+.section-heading h2 {
+  font-size: clamp(4rem, 9vw, 9rem);
+
+  line-height: 0.82;
+
+  letter-spacing: -0.07em;
+
+  max-width: 900px;
+}
+
+.destination-grid {
+  display: grid;
+
+  grid-template-columns: repeat(2, 1fr);
+
+  gap: 120px 30px;
+}
+
+.destination-card {
+  cursor: pointer;
+}
+
+.destination-image {
+  position: relative;
+
+  width: 100%;
+
+  aspect-ratio: 4 / 5;
+
+  overflow: hidden;
+
+  background: #151515;
+}
+
+.destination-image img {
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+
+  display: block;
+
+  transition:
+    transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.destination-card:hover .destination-image img {
+  transform: scale(1.07);
+}
+
+.destination-overlay {
+  position: absolute;
+
+  inset: 0;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  background: rgba(0, 0, 0, 0.35);
+
+  opacity: 0;
+
+  transition: opacity 0.4s ease;
+}
+
+.destination-card:hover .destination-overlay {
+  opacity: 1;
+}
+
+.destination-overlay span {
+  width: 100px;
+  height: 100px;
+
+  border-radius: 50%;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  background: #ff2b2b;
+
+  color: #fff;
+
+  font-size: 10px;
+
+  letter-spacing: 0.08em;
+}
+
+.destination-info {
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: flex-start;
+
+  padding-top: 20px;
+}
+
+.destination-country {
+  font-size: 10px;
+
+  letter-spacing: 0.12em;
+
+  color: #777;
+
+  margin-bottom: 8px;
+}
+
+.destination-info h3 {
+  font-size: 32px;
+
+  font-weight: 500;
+
+  letter-spacing: -0.04em;
+}
+
+.destination-description {
+  max-width: 220px;
+
+  color: #777;
+
+  font-size: 12px;
+
+  line-height: 1.5;
+}
+
+.destination-card:nth-child(2) {
+  margin-top: 180px;
+}
+
+.destination-card:nth-child(3) {
+  margin-top: -40px;
+}
+
+.destination-card:nth-child(4) {
+  margin-top: 120px;
+}
+
+.plan-section {
+  min-height: 100vh;
+
+  padding: 180px 40px;
+
+  display: grid;
+
+  grid-template-columns: 1fr 3fr;
+
+  border-top: 1px solid #242424;
+}
+
+.plan-label {
+  font-size: 11px;
+
+  letter-spacing: 0.12em;
+
+  color: #777;
+}
+
+.plan-content {
+  max-width: 1000px;
+}
+
+.plan-content h2 {
+  font-size: clamp(4rem, 10vw, 10rem);
+
+  line-height: 0.82;
+
+  letter-spacing: -0.07em;
+
+  margin-bottom: 80px;
+}
+
+.plan-content p {
+  max-width: 400px;
+
+  color: #888;
+
+  line-height: 1.6;
+
+  font-size: 14px;
+
+  margin-bottom: 50px;
+}
+
+.plan-button {
+  display: flex;
+
+  align-items: center;
+
+  gap: 30px;
+
+  padding: 18px 24px;
+
+  background: transparent;
+
+  border: 1px solid #444;
+
+  color: white;
+
+  cursor: pointer;
+
+  font-size: 11px;
+
+  letter-spacing: 0.1em;
+
+  transition: 0.3s ease;
+}
+
+.plan-button span {
+  font-size: 18px;
+
+  transition: transform 0.3s ease;
+}
+
+.plan-button:hover {
+  background: white;
+
+  color: black;
+}
+
+.plan-button:hover span {
+  transform: translate(5px, -5px);
+}
+
+@media (max-width: 768px) {
+
+  .navbar {
+    padding: 20px;
+  }
+
+  .navbar-location {
+    display: none;
+  }
+
+  .hero {
+    padding: 130px 20px 30px;
+  }
+
+  .hero h1 {
+    font-size: clamp(3.5rem, 16vw, 7rem);
+  }
+
+  .hero-bottom {
+    gap: 30px;
+  }
+
+  .destinations {
+    padding: 120px 20px;
+  }
+
+  .section-heading {
+    display: block;
+
+    margin-bottom: 70px;
+  }
+
+  .section-heading h2 {
+    margin-top: 40px;
+  }
+
+  .destination-grid {
+    grid-template-columns: 1fr;
+
+    gap: 80px;
+  }
+
+  .destination-card:nth-child(2),
+  .destination-card:nth-child(3),
+  .destination-card:nth-child(4) {
+    margin-top: 0;
+  }
+
+  .destination-info {
+    display: block;
+  }
+
+  .destination-description {
+    margin-top: 15px;
+  }
+
+  .plan-section {
+    display: block;
+
+    padding: 120px 20px;
+  }
+
+  .plan-content {
+    margin-top: 70px;
+  }
+
+}
