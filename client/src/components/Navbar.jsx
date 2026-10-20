@@ -9,28 +9,27 @@ function Navbar() {
       </Link>
 
       <nav className="navbar-links">
-        <NavLink
-          to="/"
-          end
-          className={({ isActive }) =>
-            isActive ? "nav-link active" : "nav-link"
-          }
-        >
+        <NavLink to="/" end className={({ isActive }) =>
+          isActive ? "nav-link active" : "nav-link"
+        }>
           Home
         </NavLink>
 
-        <NavLink
-          to="/explore"
-          className={({ isActive }) =>
-            isActive ? "nav-link active" : "nav-link"
-          }
-        >
+        <NavLink to="/explore" className={({ isActive }) =>
+          isActive ? "nav-link active" : "nav-link"
+        }>
           Explore
+        </NavLink>
+
+        <NavLink to="/plan" className={({ isActive }) =>
+          isActive ? "nav-link active" : "nav-link"
+        }>
+          Plan a trip
         </NavLink>
       </nav>
 
-      <Link to="/explore" className="navbar-cta">
-        Discover places <span>↗</span>
+      <Link to="/plan" className="navbar-cta">
+        Start planning <span>↗</span>
       </Link>
     </header>
   );

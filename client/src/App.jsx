@@ -6,6 +6,7 @@ import Home from "./pages/Home";
 import Explore from "./pages/Explore";
 import DestinationDetails from "./pages/DestinationDetails";
 import NotFound from "./pages/NotFound";
+import PlanTrip from "./pages/PlanTrip";
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/explore" element={<Explore />} />
+        <Route path="/plan" element={<PlanTrip />} />
         <Route
           path="/destinations/:slug"
           element={<DestinationDetails />}
