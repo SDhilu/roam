@@ -1,14 +1,18 @@
 
-function TripPlannerForm({ form, onChange, onSubmit }) {
+function TripPlannerForm({ form, onChange }) {
+  function goToDestinations() {
+    document.getElementById("destination-selector")?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  }
+
   return (
     <section className="trip-form">
       <div className="trip-form-heading">
         <p className="eyebrow">01 / YOUR JOURNEY</p>
         <h2>Let's plan something unforgettable.</h2>
-        <p>
-          Start with the essentials. You can refine your
-          adventure as you go.
-        </p>
+        <p>Start with the essentials. You can refine your journey as you go.</p>
       </div>
 
       <div className="trip-form-grid">
@@ -19,8 +23,8 @@ function TripPlannerForm({ form, onChange, onSubmit }) {
             value={form.tripName}
             onChange={onChange}
             placeholder="e.g. Summer in Japan"
-            required
             maxLength={70}
+            required
           />
         </label>
 
@@ -41,8 +45,8 @@ function TripPlannerForm({ form, onChange, onSubmit }) {
             type="date"
             name="endDate"
             value={form.endDate}
-            onChange={onChange}
             min={form.startDate || undefined}
+            onChange={onChange}
             required
           />
         </label>
@@ -53,9 +57,9 @@ function TripPlannerForm({ form, onChange, onSubmit }) {
             type="number"
             name="travelers"
             value={form.travelers}
-            onChange={onChange}
             min="1"
             max="20"
+            onChange={onChange}
             required
           />
         </label>
@@ -66,26 +70,21 @@ function TripPlannerForm({ form, onChange, onSubmit }) {
             type="number"
             name="budget"
             value={form.budget}
-            onChange={onChange}
             min="1"
             step="1"
+            onChange={onChange}
             required
           />
         </label>
       </div>
 
       <button
-  type="button"
-  className="trip-primary-button"
-  onClick={() =>
-    document.getElementById("destination-selector")?.scrollIntoView({
-      behavior: "smooth",
-      block: "start",
-    })
-  }
->
-  Choose destinations <span>↓</span>
-</button>
+        type="button"
+        className="trip-primary-button"
+        onClick={goToDestinations}
+      >
+        Choose destinations <span>↓</span>
+      </button>
     </section>
   );
 }

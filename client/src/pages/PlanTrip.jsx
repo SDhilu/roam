@@ -5,8 +5,11 @@ import TripPlannerForm from "../components/TripPlannerForm";
 import DestinationSelector from "../components/DestinationSelector";
 import Itinerary from "../components/Itinerary";
 import BudgetSummary from "../components/BudgetSummary";
+import ExpenseTracker from "../components/ExpenseTracker";
 
 import { buildItinerary } from "../utils/tripPlanner";
+
+const STORAGE_KEY = "roam-saved-trips";
 
 const initialForm = {
   tripName: "",
@@ -16,24 +19,46 @@ const initialForm = {
   budget: "1000",
 };
 
+function recalculatePlan(plan) {
+  const itinerary = plan.itinerary || [];
+
+  return {
+    ...plan,
+    itinerary,
+    estimatedTotal: itinerary.reduce(
+      (total, day) => total + Number(day.estimatedCost || 0),
+      0
+    ),
+    expenses: plan.expenses || [],
+  };
+}
+
 function PlanTrip() {
   const [form, setForm] = useState(initialForm);
   const [selectedSlugs, setSelectedSlugs] = useState([]);
   const [plan, setPlan] = useState(null);
   const [error, setError] = useState("");
+  const [notice, setNotice] = useState("");
   const [savedTrips, setSavedTrips] = useState([]);
 
-  // Load saved trips once when this page opens.
   useEffect(() => {
     try {
-      const stored = localStorage.getItem("roam-saved-trips");
+      const stored = localStorage.getItem(STORAGE_KEY);
       const parsed = stored ? JSON.parse(stored) : [];
 
       if (Array.isArray(parsed)) {
-        setSavedTrips(parsed);
+        setSavedTrips(
+          parsed.map((trip) => ({
+            ...trip,
+            expenses: trip.expenses || [],
+            itinerary: trip.itinerary || [],
+            estimatedTotal: Number(trip.estimatedTotal || 0),
+          }))
+        );
       }
     } catch {
       setSavedTrips([]);
+      setError("Saved trips could not be loaded from this browser.");
     }
   }, []);
 
@@ -43,7 +68,6 @@ function PlanTrip() {
     setForm((current) => {
       const updated = { ...current, [name]: value };
 
-      // Keep the end date from falling before the start date.
       if (
         name === "startDate" &&
         updated.endDate &&
@@ -56,6 +80,7 @@ function PlanTrip() {
     });
 
     setError("");
+    setNotice("");
   }
 
   function handleToggleDestination(slug) {
@@ -66,25 +91,38 @@ function PlanTrip() {
     );
 
     setError("");
+    setNotice("");
   }
 
   function handleGenerate(event) {
-    event.preventDefault();
+    event?.preventDefault?.();
     setError("");
+    setNotice("");
 
     try {
-      const generatedPlan = buildItinerary(form, selectedSlugs);
-      setPlan(generatedPlan);
+      const generated = buildItinerary(form, selectedSlugs);
 
-      // Bring the generated itinerary into view.
-      window.setTimeout(() => {
-        document.getElementById("generated-itinerary")?.scrollIntoView({
-          behavior: "smooth",
-          block: "start",
-        });
-      }, 100);
+      const updatedPlan = {
+        ...generated,
+        id: plan?.id || `trip-${Date.now()}`,
+        expenses: plan?.expenses || [],
+      };
+
+      setPlan(recalculatePlan(updatedPlan));
+      setNotice("Your itinerary has been generated.");
     } catch (err) {
-      setError(err.message || "Something went wrong. Please try again.");
+      setError(err.message || "Unable to generate the itinerary.");
+    }
+  }
+
+  function persistTrips(trips) {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(trips));
+      setSavedTrips(trips);
+      return true;
+    } catch {
+      setError("Unable to save changes in your browser.");
+      return false;
     }
   }
 
@@ -93,39 +131,49 @@ function PlanTrip() {
       return;
     }
 
-    try {
-      const tripToSave = {
-        ...plan,
-        id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-        savedAt: new Date().toISOString(),
-      };
+    const tripToSave = recalculatePlan({
+      ...plan,
+      tripName: form.tripName.trim(),
+      budget: Number(form.budget),
+      travelers: Number(form.travelers),
+      selectedSlugs,
+      savedAt: new Date().toISOString(),
+    });
 
-      const updatedTrips = [tripToSave, ...savedTrips];
+    const exists = savedTrips.some((trip) => trip.id === tripToSave.id);
 
-      localStorage.setItem(
-        "roam-saved-trips",
-        JSON.stringify(updatedTrips)
-      );
+    const updatedTrips = exists
+      ? savedTrips.map((trip) =>
+          trip.id === tripToSave.id ? tripToSave : trip
+        )
+      : [tripToSave, ...savedTrips];
 
-      setSavedTrips(updatedTrips);
+    if (persistTrips(updatedTrips)) {
+      setPlan(tripToSave);
+      setNotice(exists ? "Your saved trip has been updated." : "Trip saved successfully.");
       setError("");
-    } catch {
-      setError("Unable to save this trip in your browser.");
     }
   }
 
   function handleLoadTrip(trip) {
-    setForm({
-      tripName: trip.tripName,
-      startDate: trip.startDate,
-      endDate: trip.endDate,
-      travelers: String(trip.travelers),
-      budget: String(trip.budget),
+    const loadedPlan = recalculatePlan({
+      ...trip,
+      expenses: trip.expenses || [],
     });
 
-    setSelectedSlugs(trip.selectedSlugs);
-    setPlan(trip);
+    setPlan(loadedPlan);
+
+    setForm({
+      tripName: trip.tripName || "",
+      startDate: trip.startDate || "",
+      endDate: trip.endDate || "",
+      travelers: String(trip.travelers || 1),
+      budget: String(trip.budget || 1000),
+    });
+
+    setSelectedSlugs(trip.selectedSlugs || []);
     setError("");
+    setNotice(`Opened "${trip.tripName}".`);
 
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
@@ -133,31 +181,98 @@ function PlanTrip() {
   function handleDeleteTrip(id) {
     const updatedTrips = savedTrips.filter((trip) => trip.id !== id);
 
-    try {
-      localStorage.setItem(
-        "roam-saved-trips",
-        JSON.stringify(updatedTrips)
-      );
+    if (persistTrips(updatedTrips)) {
+      if (plan?.id === id) {
+        setPlan(null);
+      }
 
-      setSavedTrips(updatedTrips);
-    } catch {
-      setError("Unable to update your saved trips.");
+      setNotice("Saved trip deleted.");
+      setError("");
     }
+  }
+
+  function handleUpdateActivity(dayNumber, activity) {
+    setPlan((current) => {
+      if (!current) return current;
+
+      return {
+        ...current,
+        itinerary: current.itinerary.map((day) =>
+          day.day === dayNumber ? { ...day, activity } : day
+        ),
+      };
+    });
+
+    setNotice("");
+  }
+
+  function handleRemoveDay(dayNumber) {
+    if (!plan || plan.itinerary.length <= 1) {
+      setError("Keep at least one day in your itinerary.");
+      return;
+    }
+
+    const updatedDays = plan.itinerary
+      .filter((day) => day.day !== dayNumber)
+      .map((day, index) => ({
+        ...day,
+        day: index + 1,
+      }));
+
+    setPlan(recalculatePlan({
+      ...plan,
+      itinerary: updatedDays,
+    }));
+
+    setNotice("Day removed. Save your trip to keep the change.");
+    setError("");
+  }
+
+  function handleAddExpense(expense) {
+    if (!plan) return;
+
+    const newExpense = {
+      ...expense,
+      id: `expense-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+    };
+
+    setPlan((current) => ({
+      ...current,
+      expenses: [...(current.expenses || []), newExpense],
+    }));
+
+    setNotice("Expense added. Save your trip to keep the change.");
+    setError("");
+  }
+
+  function handleDeleteExpense(expenseId) {
+    if (!plan) return;
+
+    setPlan((current) => ({
+      ...current,
+      expenses: current.expenses.filter(
+        (expense) => expense.id !== expenseId
+      ),
+    }));
+
+    setNotice("Expense removed. Save your trip to keep the change.");
+    setError("");
   }
 
   return (
     <main className="plan-trip-page">
       <section className="plan-trip-hero">
         <p className="eyebrow">YOUR WORLD, YOUR WAY</p>
+
         <h1>
           Make room
           <br />
           <span>for somewhere new.</span>
         </h1>
+
         <p>
-          Your next great story starts with a plan.
-          Choose your places, set your budget, and let ROAM
-          map out the first draft of your adventure.
+          Choose your destinations, build your itinerary,
+          and keep your spending in one place.
         </p>
       </section>
 
@@ -179,6 +294,12 @@ function PlanTrip() {
             </p>
           )}
 
+          {notice && (
+            <p className="trip-notice" role="status">
+              {notice}
+            </p>
+          )}
+
           <div className="generate-again">
             <button
               type="button"
@@ -190,46 +311,66 @@ function PlanTrip() {
           </div>
 
           <div id="generated-itinerary">
-            <Itinerary plan={plan} />
+            <Itinerary
+              plan={plan}
+              onUpdateActivity={handleUpdateActivity}
+              onRemoveDay={handleRemoveDay}
+            />
 
             {plan && (
-              <div className="save-trip-actions">
-                <button
-                  type="button"
-                  className="trip-primary-button"
-                  onClick={handleSaveTrip}
-                >
-                  Save this trip
-                </button>
-              </div>
-            )}
+              <>
+                <div className="save-trip-actions">
+                  <button
+                    type="button"
+                    className="trip-primary-button"
+                    onClick={handleSaveTrip}
+                  >
+                    Save trip and changes
+                  </button>
+                </div>
 
-            <BudgetSummary plan={plan} />
+                <ExpenseTracker
+                  expenses={plan.expenses || []}
+                  onAddExpense={handleAddExpense}
+                  onDeleteExpense={handleDeleteExpense}
+                />
+
+                <BudgetSummary plan={plan} />
+              </>
+            )}
           </div>
         </div>
 
         <aside className="saved-trips-panel">
           <p className="eyebrow">YOUR COLLECTION</p>
           <h2>Saved journeys</h2>
+
           <p className="saved-trips-intro">
-            Your plans, ready when you are.
+            Open a trip to continue planning or tracking expenses.
           </p>
 
           {savedTrips.length === 0 ? (
             <p className="saved-trips-empty">
-              Your saved trips will appear here once you create one.
+              Save your first trip and it will appear here.
             </p>
           ) : (
             <div className="saved-trips-list">
               {savedTrips.map((trip) => (
                 <article className="saved-trip-card" key={trip.id}>
-                  <h3>{trip.tripName}</h3>
+                  <h3>{trip.tripName || "Untitled trip"}</h3>
+
                   <p>
                     {trip.startDate} — {trip.endDate}
                   </p>
+
                   <p>
-                    ${Number(trip.estimatedTotal).toLocaleString("en-US")}
+                    ${Number(trip.estimatedTotal || 0).toLocaleString("en-US")}
                     {" "}estimated
+                  </p>
+
+                  <p>
+                    {(trip.expenses || []).length} recorded expense
+                    {(trip.expenses || []).length === 1 ? "" : "s"}
                   </p>
 
                   <div className="saved-trip-actions">
