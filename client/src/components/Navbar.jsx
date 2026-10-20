@@ -1,24 +1,38 @@
+
+import { NavLink, Link } from "react-router-dom";
+
 function Navbar() {
   return (
-    <nav className="navbar">
+    <header className="navbar">
+      <Link to="/" className="navbar-logo">
+        ROAM<span>.</span>
+      </Link>
 
-      <div className="navbar-logo">
-        ROAM
-      </div>
+      <nav className="navbar-links">
+        <NavLink
+          to="/"
+          end
+          className={({ isActive }) =>
+            isActive ? "nav-link active" : "nav-link"
+          }
+        >
+          Home
+        </NavLink>
 
-      <div className="navbar-right">
+        <NavLink
+          to="/explore"
+          className={({ isActive }) =>
+            isActive ? "nav-link active" : "nav-link"
+          }
+        >
+          Explore
+        </NavLink>
+      </nav>
 
-        <span className="navbar-location">
-          COLOMBO / LK
-        </span>
-
-        <button className="menu-button">
-          MENU
-        </button>
-
-      </div>
-
-    </nav>
+      <Link to="/explore" className="navbar-cta">
+        Discover places <span>↗</span>
+      </Link>
+    </header>
   );
 }
 
