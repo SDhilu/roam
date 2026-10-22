@@ -1,4 +1,4 @@
-# Roam ✈️
+# Roam
 
 A travel-focused web application built with React, designed to provide a modern and engaging web experience for exploring travel-related content.
 
